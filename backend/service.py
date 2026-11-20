@@ -4,7 +4,7 @@ import io
 from typing import Optional
 
 from fastapi import HTTPException, Request, status
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 import crud
 from models import (
@@ -1455,12 +1455,47 @@ def seed_initial_data(session: Session) -> None:
     Seed the required test accounts (2 Admins + 3 Normal Users),
     initial campus lost/found reports, and 1 shared Recovery Group with mixed permissions.
     """
+    # Migrate legacy demo accounts in-place for already-initialized databases
+    legacy_renames = [
+        ("alice@campus.edu", "Ammar Rahman", "ammar@campus.edu"),
+        ("rafi@campus.edu", "Sajid Ahmed", "sajid@campus.edu"),
+    ]
+    for old_email, new_name, new_email in legacy_renames:
+        legacy_user = crud.get_user_by_email(session, old_email)
+        target_user = crud.get_user_by_email(session, new_email)
+        if legacy_user and not target_user:
+            legacy_user.name = new_name
+            legacy_user.email = new_email
+            session.add(legacy_user)
+
+            assert legacy_user.id is not None
+            for member in crud.list_user_memberships(session, legacy_user.id):
+                member.user_name = new_name
+                member.user_email = new_email
+                session.add(member)
+
+            for item in session.exec(
+                select(Item).where(Item.owner_id == legacy_user.id)
+            ).all():
+                item.owner_name = new_name
+                if item.contact_info == old_email:
+                    item.contact_info = new_email
+                session.add(item)
+
+            for item in session.exec(
+                select(Item).where(Item.assignee_id == legacy_user.id)
+            ).all():
+                item.assignee_name = new_name
+                session.add(item)
+
+            session.commit()
+
     demo_accounts = [
         ("Campus Chief Admin", "admin@campus.edu", "Admin123!", "admin"),
         ("Security Desk Moderator", "moderator@campus.edu", "Admin123!", "admin"),
         ("Sakif Ishmam", "student@campus.edu", "Student123!", "user"),
-        ("Alice Rahman", "alice@campus.edu", "Student123!", "user"),
-        ("Rafi Ahmed", "rafi@campus.edu", "Student123!", "user"),
+        ("Ammar Rahman", "ammar@campus.edu", "Student123!", "user"),
+        ("Sajid Ahmed", "sajid@campus.edu", "Student123!", "user"),
     ]
 
     users_by_email: dict[str, User] = {}
@@ -1480,8 +1515,8 @@ def seed_initial_data(session: Session) -> None:
         users_by_email[email] = user
 
     student = users_by_email["student@campus.edu"]
-    alice = users_by_email["alice@campus.edu"]
-    rafi = users_by_email["rafi@campus.edu"]
+    ammar = users_by_email["ammar@campus.edu"]
+    sajid = users_by_email["sajid@campus.edu"]
     admin = users_by_email["admin@campus.edu"]
 
     # Seed shared group with mixed permissions if none exists
@@ -1494,27 +1529,27 @@ def seed_initial_data(session: Session) -> None:
             description="Shared recovery desk for library volunteers and student assistants.",
             owner=student,
         )
-        assert library_group.id is not None and alice.id is not None and rafi.id is not None
-        # Alice has create + edit + assign permissions
+        assert library_group.id is not None and ammar.id is not None and sajid.id is not None
+        # Ammar has create + edit + assign permissions
         session.add(
             DeskMember(
                 group_id=library_group.id,
-                user_id=alice.id,
-                user_name=alice.name,
-                user_email=alice.email,
+                user_id=ammar.id,
+                user_name=ammar.name,
+                user_email=ammar.email,
                 group_role="member",
                 can_create=True,
                 can_edit=True,
                 can_assign=True,
             )
         )
-        # Rafi only has create permission (cannot edit or assign)
+        # Sajid only has create permission (cannot edit or assign)
         session.add(
             DeskMember(
                 group_id=library_group.id,
-                user_id=rafi.id,
-                user_name=rafi.name,
-                user_email=rafi.email,
+                user_id=sajid.id,
+                user_name=sajid.name,
+                user_email=sajid.email,
                 group_role="member",
                 can_create=True,
                 can_edit=False,
@@ -1562,11 +1597,11 @@ def seed_initial_data(session: Session) -> None:
                 category="Books & Stationery",
                 location="Auditorium Row C",
                 description="Contains handwritten lecture notes for Web Application course.",
-                contact_info="alice@campus.edu",
+                contact_info="ammar@campus.edu",
                 status="active",
             ),
-            owner_id=alice.id,
-            owner_name=alice.name,
+            owner_id=ammar.id,
+            owner_name=ammar.name,
         )
         crud.create_item_record(
             session=session,
@@ -1576,11 +1611,11 @@ def seed_initial_data(session: Session) -> None:
                 category="Keys",
                 location="Basement Parking Gate 2",
                 description="Single ignition key attached to a red fabric carabiner.",
-                contact_info="rafi@campus.edu",
+                contact_info="sajid@campus.edu",
                 status="active",
             ),
-            owner_id=rafi.id,
-            owner_name=rafi.name,
+            owner_id=sajid.id,
+            owner_name=sajid.name,
         )
         crud.create_item_record(
             session=session,
@@ -1608,11 +1643,11 @@ def seed_initial_data(session: Session) -> None:
                     contact_info="student@campus.edu",
                     status="active",
                     group_id=library_group.id,
-                    assignee_id=alice.id,
+                    assignee_id=ammar.id,
                 ),
                 owner_id=student.id,
                 owner_name=student.name,
                 group_id=library_group.id,
-                assignee_id=alice.id,
-                assignee_name=alice.name,
+                assignee_id=ammar.id,
+                assignee_name=ammar.name,
             )
