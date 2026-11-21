@@ -1,11 +1,11 @@
-# Product Requirements Document (PRD)
+﻿# Product Requirements Document (PRD)
 ## Campus Lost & Found Management System
 
 | **Field** | **Details** |
 |---|---|
 | Product | Campus Lost & Found Management System |
 | Releases | MVP (Mid-term) and Beta (Final) |
-| Status | Complete (Beta Released) |
+| Status | Draft |
 | Related Documents | SRS, TDD |
 | Frontend | React with TypeScript |
 | Backend | FastAPI with Python |
@@ -16,18 +16,18 @@
 
 Campus Lost & Found is a web-based application designed to help campus members report lost and found items and easily access information about reported belongings.
 
-The frontend is developed using **React with TypeScript**, while the backend uses **FastAPI with Python**.
+The frontend will be developed using **React with TypeScript**, while the backend will use **FastAPI with Python**.
 
-The project is developed in two releases:
+The project will be developed in two releases:
 
 - **MVP (Mid-term):** A basic application that supports lost-and-found report management and runs locally.
-- **Beta (Final):** An enhanced version that introduces JWT authentication, token refresh & revocation, account lockout protection, role-based permissions (user, moderator, admin), campus team desks, and cloud deployment on Vercel.
+- **Beta (Final):** An enhanced version that introduces authentication, user profiles, role-based permissions, security scopes, and deployment.
 
 ## 2. Problem Statement
 
 Information about lost and found items is often shared through group chats, social media, or physical notice boards. This makes it difficult for students to find relevant information and keep track of reported items.
 
-Campus Lost & Found solves this problem by providing a centralized platform where campus members can create, browse, view, update, and manage lost-and-found reports securely.
+Campus Lost & Found aims to solve this problem by providing a centralized platform where campus members can create, browse, view, update, and manage lost-and-found reports.
 
 ## 3. Project Goals
 
@@ -35,21 +35,18 @@ Campus Lost & Found solves this problem by providing a centralized platform wher
 |---|---|
 | Create, view, update, and delete lost-and-found reports through REST APIs. | MVP |
 | Run the frontend and backend locally as an integrated application. | MVP |
-| Implement user authentication (JWT access & refresh tokens) and a profile dashboard. | Beta |
-| Add brute-force protection (lockout after 5 failed login attempts for 15 minutes). | Beta |
-| Introduce user, moderator, and admin roles with permission checks and ownership rules. | Beta |
-| Add Campus Team Desks (Security Desk, Library Front Desk, IT Helpdesk) for staff. | Beta |
-| Implement security scopes and token revocation on logout. | Beta |
-| Deploy the application live on Vercel with PostgreSQL-ready storage. | Beta |
+| Implement user authentication and a profile dashboard. | Beta |
+| Introduce member and admin roles with permission checks. | Beta |
+| Implement security scopes to protect API operations. | Beta |
+| Deploy the application for the final demonstration. | Beta |
 
 ## 4. Target Users
 
 | User | Description | Release |
 |---|---|---|
-| Campus Member | Can create, browse, and view lost-and-found reports without an account. | MVP |
-| Registered Member (`user`) | Can sign in, manage profile, change password, and edit/delete own reports. | Beta |
-| Desk Staff (`moderator`) | Can manage items assigned to campus desks (Security, Library, IT Helpdesk). | Beta |
-| Administrator (`admin`) | Full system access: manage all reports, users, roles, and view analytics. | Beta |
+| Campus Member | Can create, browse, and view lost-and-found reports. | MVP |
+| Registered Member | Can sign in and manage their profile and own reports. | Beta |
+| Administrator | Can manage reports and perform authorized administrative actions. | Beta |
 
 ### 4.1 User Stories
 
@@ -61,24 +58,21 @@ Campus Lost & Found solves this problem by providing a centralized platform wher
 
 **Beta**
 
-- As a member, I want to register and sign in securely so that I can access my personal account.
-- As a member, I want my account protected against password guessing (temporary lockout after 5 failed attempts).
-- As a member, I want my session to stay active smoothly via refresh tokens, and end securely when I log out.
-- As a member, I want to view my profile and edit or delete only my own reports.
-- As a desk moderator, I want to view and resolve reports assigned to campus desks (Security, Library, IT).
-- As an administrator, I want administrative permissions to manage all reports, user roles, and team desks.
-- As a member, I want the API to reject unauthorized requests with proper HTTP status codes (`401`, `403`).
+- As a member, I want to register and sign in so that I can access my personal account.
+- As a member, I want to view my profile and reports through a dashboard so that I can manage my information.
+- As an administrator, I want administrative permissions so that I can manage reports and users.
+- As a member, I want the API to restrict unauthorized actions so that my account and the application remain secure.
 
 ## 5. Project Scope
 
 ### 5.1 MVP — Mid-term Release
 
-The MVP focused on the core lost-and-found report management functionality.
+The MVP will focus on the core lost-and-found report management functionality.
 
 **Included Features:**
 
 - Create lost and found reports.
-- List and browse available reports with search and category filters.
+- List and browse available reports.
 - View individual report details.
 - Update existing reports.
 - Delete reports.
@@ -89,24 +83,22 @@ The MVP focused on the core lost-and-found report management functionality.
 **Limitations:**
 
 - No user registration or login.
-- No role-based permissions or ownership restrictions.
+- No role-based permissions.
 - No authentication requirements.
 
 ### 5.2 Beta — Final Release
 
-The Beta release extends the MVP by introducing authentication, authorization, team desks, and deployment.
+The Beta release will extend the MVP by introducing authentication, authorization, and deployment.
 
 **Included Features:**
 
-- User registration, login, and logout.
-- JWT authentication with access token (15 min) and rotating refresh token (7 days).
-- Token revocation blacklist on logout.
-- Account lockout protection: 5 consecutive failed login attempts locks account for 15 minutes.
-- User profile dashboard and secure password change.
-- Three user roles: `user`, `moderator`, and `admin`.
-- Backend ownership checks: users can only edit/delete their own reports; staff/admin can manage all.
-- Campus Team Desks (`Security Desk`, `Library Front Desk`, `IT Helpdesk`).
-- Application deployment on Vercel with HTTPS and PostgreSQL support.
+- User registration and login.
+- User logout.
+- User profile dashboard.
+- Member and administrator roles.
+- Backend permission checks.
+- Security scopes for protected API operations.
+- Application deployment for the final demonstration.
 
 ## 6. Functional Features and Priorities
 
@@ -117,70 +109,91 @@ The Beta release extends the MVP by introducing authentication, authorization, t
 | Update and delete reports | MVP | Must Have |
 | Input validation and error handling | MVP | Must Have |
 | User registration and login | Beta | Must Have |
-| JWT access & rotating refresh tokens | Beta | Must Have |
-| Token revocation on logout | Beta | Must Have |
-| Account lockout protection (5 failed attempts) | Beta | Must Have |
-| User profile dashboard & password change | Beta | Must Have |
-| Role-based access control (`user`, `moderator`, `admin`) | Beta | Must Have |
-| Ownership-based edit and delete permissions | Beta | Must Have |
-| Campus team desks (Security, Library, IT) | Beta | Must Have |
-| Application deployment on Vercel | Beta | Must Have |
+| User profile dashboard | Beta | Must Have |
+| Member and admin roles | Beta | Must Have |
+| Backend permission checks | Beta | Must Have |
+| Security scopes | Beta | Must Have |
+| Application deployment | Beta | Must Have |
 
 ## 7. Milestones and Deliverables
 
 ### 7.1 MVP — Mid-term
 
 1. Complete project documentation (PRD, SRS, and TDD).
-2. Design the report data model and configure the local SQLite database.
+2. Design the report data model and configure the local database.
 3. Implement and test report CRUD REST API endpoints.
-4. Develop the React frontend with TypeScript.
+4. Develop the React frontend.
 5. Integrate the frontend with the FastAPI backend.
 6. Test the core application functionality.
 7. Demonstrate the application running locally.
 
 ### 7.2 Beta — Final
 
-1. Implement user registration, login, and logout with JWT tokens.
-2. Add access token expiration (15 min) and refresh token rotation (7 days).
-3. Implement token revocation blacklist and account lockout protection.
-4. Develop user profile dashboard and password change endpoint.
-5. Implement `user`, `moderator`, and `admin` roles with backend RBAC dependencies.
-6. Add item ownership checks and campus team desks.
-7. Write and run automated test suite (`backend/tests/test_auth_and_rbac.py`).
-8. Deploy the application to Vercel and verify live HTTPS endpoints.
-9. Deliver final documentation, report, and project defense.
+1. Implement user registration and login.
+2. Develop user profiles and the dashboard.
+3. Introduce member and administrator roles.
+4. Implement backend permission checks.
+5. Add security scopes and protect report operations.
+6. Test authentication and authorization.
+7. Deploy the integrated application.
+8. Demonstrate the deployed application.
 
 ## 8. Success Criteria
 
 ### 8.1 MVP Success Criteria
 
-The MVP was considered successful when:
+The MVP will be considered successful when:
 
-- The application ran successfully in a local environment.
-- Users could create, view, update, and delete reports through the frontend.
-- All report CRUD operations worked correctly through the REST API.
-- Invalid report information was rejected with appropriate error messages.
-- The React frontend communicated successfully with the FastAPI backend.
+- The application runs successfully in a local environment.
+- Users can create, view, update, and delete reports through the frontend.
+- All report CRUD operations work correctly through the REST API.
+- Invalid report information is rejected with appropriate error messages.
+- The React frontend communicates successfully with the FastAPI backend.
 
 ### 8.2 Beta Success Criteria
 
-The Beta release is considered successful when:
+The Beta release will be considered successful when:
 
-- Users can register, log in, refresh tokens, and log out securely.
-- Repeated failed logins (5 attempts) lock the account for 15 minutes.
-- Revoked tokens cannot be reused after logout.
-- Regular users cannot edit or delete reports created by other members.
-- Regular users cannot access admin or moderator endpoints.
-- Administrators and moderators can manage reports and team desk items.
-- All automated security and RBAC tests pass (100%).
-- The application is deployed and accessible live over HTTPS on Vercel.
+- Users can register and log in successfully.
+- Users can access their profile dashboard.
+- Members can perform only the actions they are authorized to perform.
+- Administrators have the required administrative permissions.
+- Protected API operations enforce the appropriate security scopes.
+- The application is deployed and accessible for the final demonstration.
 
 ## 9. Assumptions and Constraints
 
-- The application is designed primarily for a single campus community.
-- Passwords are encrypted using modern hashing (Argon2 / PBKDF2) and never stored in plain text.
-- Token secrets are loaded from environment variables and never hardcoded in repository files.
-- Local development uses SQLite; production can use SQLite or hosted PostgreSQL via `DATABASE_URL`.
-- Deployment is configured for Vercel with serverless Python backend functions.
+- The application is designed primarily for a single campus.
+- MVP report management does not require user accounts.
+- Authentication and authorization will be introduced in the Beta release.
+- Member and administrator roles will be implemented in the Beta release.
+- Deployment is planned for the final release.
+- The project will remain focused on the core lost-and-found management requirements.
 
 ---
+
+## 10. Milestones
+
+### MVP — Mid-term
+
+| Milestone | Deliverable |
+|---|---|
+| M1 — Docs | [PRD](01-prd.md), [SRS](02-srs.md) and [TDD](03-tdd.md) (covering MVP and Beta) approved |
+| M2 — Data layer | Report item model and SQLite database connection |
+| M3 — API | Core CRUD endpoints with validation |
+| M4 — Mid demo | Live on Vercel, tagged 0.1.0 (MVP) |
+
+### Beta — Final
+
+| Milestone | Deliverable |
+|---|---|
+| B1 — Auth | Sign up, login, logout, refresh session, password change; items owned by a user; database migrations in place |
+| B2 — RBAC + admin | user, moderator, and dmin roles, admin endpoints, admin dashboard stats, permission checks on every endpoint |
+| B3 — Campus desks | Team Desks (Security Desk, Library Front Desk, IT Helpdesk) for staff |
+| B4 — Security | Password hashing, token revocation blacklist, 5-attempt login lockout, security headers |
+| B5 — Final demo | Beta live on Vercel, tagged 0.2.0 (Beta) |
+
+## 11. Release dependencies
+
+- The Beta is built on top of the MVP: the same /api/items endpoints remain, but in Beta they require login and enforce ownership rules (users can only edit/delete their own reports, while admins and desk moderators can manage all).
+- Database migrations and schema evolution are introduced for Beta so the schema grows to support user accounts, security tokens, team desks, and report ownership.
