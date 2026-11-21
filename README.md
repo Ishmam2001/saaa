@@ -1,115 +1,209 @@
 # Campus Lost & Found Management System
 
-A full-stack multi-user web application for reporting, tracking, and recovering lost and found belongings across campus. Built with **FastAPI**, **SQLModel**, **React**, **TypeScript**, and **Vite**, deployed on **Vercel**.
+A secure web-based lost-and-found management platform for campus communities: report lost or found items, search and filter belongings, and coordinate recovery through campus team desks. Built with a FastAPI backend and a React + TypeScript frontend, deployed on Vercel.
 
----
-
-## Live Deployment Links
-
-| Resource | URL |
-| :--- | :--- |
-| **Vercel Frontend App** | [https://campus-lost-found-management-system.vercel.app](https://campus-lost-found-management-system.vercel.app) |
-| **FastAPI Interactive API Docs** | [https://campus-lost-found-management-system.vercel.app/api/docs](https://campus-lost-found-management-system.vercel.app/api/docs) |
-| **Health Check Endpoint** | [https://campus-lost-found-management-system.vercel.app/api/health](https://campus-lost-found-management-system.vercel.app/api/health) |
-| **Final Report (Markdown)** | [docs/FINAL_REPORT.md](docs/FINAL_REPORT.md) |
+> **Status:** MVP and Beta features are complete: lost & found report CRUD, search & filtering, JWT authentication (access & rotating refresh tokens), token revocation blacklist, 5-attempt brute-force lockout, RBAC roles (`user`, `moderator`, `admin`), campus team desks, and live Vercel deployment.
 
 ---
 
 ## Features
 
-### 1. Core Lost & Found CRUD
-- Create, list, filter (by type, category, status, and search query), view single details, update status (`active`, `claimed`, `resolved`), and delete lost/found reports through `/api/items`.
+### MVP (Mid-term)
+- **Report Management:** Create, browse, view, update, and delete lost and found reports.
+- **Search & Filters:** Real-time filtering by report type (`Lost` / `Found`) and category.
+- **REST API:** FastAPI backend with interactive documentation at `/api/docs`.
+- **Local Integration:** React frontend connected to FastAPI REST endpoints with local SQLite storage.
 
-### 2. Authentication, JWT & Session Management
-- **Password Security:** Passwords are combined with a server-side `PASSWORD_PEPPER` (HMAC-SHA256) and hashed with Argon2 (`pwdlib[argon2]`). Plain-text passwords are never stored or returned.
-- **Short-Lived JWT Access Tokens:** Signed HS256 JWT (`<= 15 minutes`) containing user ID (`sub`), email, and role. Verified on every protected endpoint (`401 Unauthorized` on missing, invalid, tampered, or expired tokens).
-- **Refresh Cookie & Session Control:** Server-side hashed refresh tokens stored in `campus_session` with `HttpOnly` cookie rotation (`POST /api/auth/refresh`), true session invalidation on logout (`POST /api/auth/logout`), and a Profile session manager allowing users to list active devices and revoke individual, other, or all sessions.
-- **Brute-Force Lockout:** 5 consecutive failed login attempts lock the account for 15 minutes (`429 Too Many Requests`).
-
-### 3. Role-Based Access Control (RBAC), Ownership & Shared Recovery Teams
-- **Centralized RBAC Module (`backend/rbac.py`):** Defines permission constants (`Permission`), role-to-permission sets (`user`, `admin`), reusable FastAPI dependency factory `require_permission(...)`, ownership enforcement, and group permission checks.
-- **Ownership Rules:** Normal users can only edit or delete their own reports (`403 Forbidden` otherwise).
-- **Shared Recovery Teams (`DeskGroup` / `/api/groups`):** Users can create shared campus recovery teams (e.g., *Main Library Lost & Found Team*), add members by email, and assign granular permissions per member (`can_create`, `can_edit`, `can_assign`). Only the group owner can delete group reports, rename/delete the group, or manage members.
-- **Admin Safety Rules:** Admins cannot change their own role or ban another admin (`400 Bad Request`). Banned users are rejected on their very next request (`403 Forbidden`) and logged out immediately.
-
-### 4. Admin Dashboard, Audit Log, Security View & CSV Exports
-- **Overview Statistics:** Total users, admins, banned users, total reports (lost/found/claimed), recovery groups, and new users/reports in the last 7 days.
-- **User Management:** Search, role/status filters, pagination, user detail inspector modal (showing a user's reports, groups, active sessions, and recent activity), role promotion/demotion, ban/unban with reason, session revocation, and bulk ban/unban.
-- **Content Moderation:** Filter and moderate all reports and recovery groups, including single and bulk delete.
-- **Activity (Audit) Log & Security Monitor:** Records login, failed login, logout, signup, password change, role change, ban/unban, delete, export, token rejection, and RBAC denial events with user email, IP address, browser User-Agent, and timestamp. Summarizes failed logins by IP address and by account.
-- **CSV Exports:** Filter-aware CSV downloads for users (`/api/admin/export/users`), reports (`/api/admin/export/items`), and activity logs (`/api/admin/export/activity`).
+### Beta (Final)
+- **JWT Authentication:** Secure user registration, login, and logout with short-lived access tokens (15 min) and rotating refresh tokens (7 days).
+- **Token Revocation:** Tokens are blacklisted in the database upon logout so they cannot be reused.
+- **Brute-Force Lockout:** Account is automatically locked for 15 minutes after 5 consecutive failed login attempts.
+- **Role-Based Access Control (RBAC):**
+  - `user`: Manage personal profile and edit/delete own reported items.
+  - `moderator`: Campus desk staff (Security, Library, IT Helpdesk) managing items assigned to campus desks.
+  - `admin`: Full system control—manage all reports, user roles, accounts, and system analytics.
+- **Item Ownership Rules:** Regular users cannot modify or delete items created by other students.
+- **Campus Team Desks:** Designated campus recovery points (`Security Desk`, `Library Front Desk`, `IT Helpdesk`).
+- **Profile Dashboard:** View account details, role status, own reported items, and change passwords.
+- **Cloud Deployment:** Production deployment on Vercel with HTTPS and PostgreSQL support.
 
 ---
 
-## Instructor Test Accounts & Shared Group (Demo Data)
+## Tech Stack
 
-> **Security Note:** Per course rules, test account passwords are **not** stored in this README or in the repository. Passwords are provided exclusively in the Final Submission Form and the PDF Report Appendix.
-
-### Test Accounts (2 Admins & 3 Normal Users)
-
-| Account Email (User ID) | Display Name | System Role | Purpose |
-| :--- | :--- | :--- | :--- |
-| `admin@campus.edu` | Campus Chief Admin | `admin` | Primary administrator account for dashboard, RBAC, audit log, and exports |
-| `moderator@campus.edu` | Security Desk Moderator | `admin` | Secondary administrator account (also tests admin-cannot-ban-admin safety rule) |
-| `student@campus.edu` | Sakif Ishmam | `user` | Normal user & **Owner** of the shared group *Main Library Lost & Found Team* |
-| `alice@campus.edu` | Alice Rahman | `user` | Normal user & group member with **Create + Edit + Assign** permissions |
-| `rafi@campus.edu` | Rafi Ahmed | `user` | Normal user & group member with **Create-Only** permission (cannot edit or assign) |
-
-### Shared Group with Mixed Permissions
-
-| Group Name | Member Email | Group Role | `can_create` | `can_edit` | `can_assign` | Owner Actions (Delete / Rename / Manage Members) |
-| :--- | :--- | :--- | :---: | :---: | :---: | :---: |
-| **Main Library Lost & Found Team** | `student@campus.edu` | `owner` | Yes | Yes | Yes | **Allowed (Owner)** |
-| **Main Library Lost & Found Team** | `alice@campus.edu` | `member` | Yes | Yes | Yes | Denied (`403`) |
-| **Main Library Lost & Found Team** | `rafi@campus.edu` | `member` | Yes | No (`403`) | No (`403`) | Denied (`403`) |
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Frontend** | React 18, TypeScript, Vite | Fast, typed, modern user interface |
+| **Backend** | Python 3.10+, FastAPI | High-performance async REST API |
+| **ORM / Data** | SQLModel / SQLAlchemy | Database models and schema management |
+| **Database** | SQLite (local dev), PostgreSQL (production) | Structured data persistence |
+| **Authentication** | PyJWT, Passlib (Argon2 / PBKDF2) | Cryptographic token handling and password hashing |
+| **Testing** | Pytest | Automated security and RBAC test suite |
+| **Hosting** | Vercel | Full-stack cloud hosting via `vercel.json` |
 
 ---
 
-## Project Architecture
+## Documentation
+
+| Document | Purpose | File |
+|---|---|---|
+| **PRD** | Product Requirements Document — goals, user stories, and milestones | [docs/01-prd.md](docs/01-prd.md) |
+| **SRS** | Software Requirements Specification — functional/non-functional requirements, RBAC matrix | [docs/02-srs.md](docs/02-srs.md) |
+| **TDD** | Technical Design Document — architecture, data models, REST endpoints, security | [docs/03-tdd.md](docs/03-tdd.md) |
+| **Final Report** | Comprehensive course submission report and viva defense guide | [docs/FINAL_REPORT.md](docs/FINAL_REPORT.md) |
+
+---
+
+## Project Structure
 
 ```text
 backend/
-  main.py             # FastAPI app entrypoint, CORS, security headers, router registration
-  models.py           # SQLModel database tables and Pydantic schemas
-  database.py         # Database engine (PostgreSQL / SQLite) and session dependency
-  security.py         # Pepper + Argon2 password hashing, HS256 JWT, session token hashing
-  rbac.py             # Reusable RBAC permission constants, dependencies, and ownership/group guards
-  crud.py             # Repository layer holding all SQLModel queries
-  service.py          # Business logic, brute-force lockout, audit logging, CSV exports, demo seeding
+  main.py              # FastAPI application entrypoint and router registration
+  models.py            # SQLModel database tables and Pydantic schemas
+  database.py          # Engine configuration, session dependency, and table creation
+  security.py          # Password hashing, JWT token create/verify, lockout checks
+  rbac.py              # Role-based dependencies (require_role, get_current_user)
+  crud.py              # Database queries for items, users, groups, and tokens
+  service.py           # Business logic, seed data, and ownership enforcement
   routers/
-    items.py          # /api/items CRUD endpoints
-    auth.py           # /api/auth register, login, refresh, logout, and device sessions
-    profile.py        # /api/profile update, password change, and personal reports
-    groups.py         # /api/groups shared recovery teams and member permissions
-    admin.py          # /api/admin stats, user inspector, bulk actions, audit log, security, exports
+    items.py           # Report CRUD endpoints with ownership rules
+    auth.py            # Registration, login, token refresh, and logout
+    profile.py         # Profile dashboard and password change
+    admin.py           # User management and admin metrics
   tests/
-    test_auth_and_rbac.py  # Automated pytest suite for login, lockout, JWT rejection, and RBAC rules
+    test_auth_and_rbac.py # 7 automated pytest tests for lockout, tokens, and RBAC
 
-frontend/src/
-  App.tsx             # Root application state, session restoration, and navigation
-  api.ts              # Fetch client with silent token refresh and ban/expiry interceptors
-  types.ts            # TypeScript interfaces
-  components/         # Header, FilterBar, ItemCard, ItemList, ReportModal, ItemDetailModal
-  pages/              # LoginPage, SignupPage, ProfilePage, GroupsPage, AdminPage
+frontend/
+  src/
+    App.tsx            # Main state container and view router
+    api.ts             # REST client with automatic 401 token refresh
+    types.ts           # Shared TypeScript interfaces (Item, User, Group)
+    components/        # UI components (Header, ItemCard, ItemList, FilterBar, Modals)
+    pages/             # Pages (LoginPage, SignupPage, ProfilePage, AdminPage)
+
+docs/
+  01-prd.md            # Product Requirements Document
+  02-srs.md            # Software Requirements Specification
+  03-tdd.md            # Technical Design Document
+  FINAL_REPORT.md      # Course Final Project Report
+
+vercel.json            # Routes /api/* to FastAPI and all other paths to frontend
 ```
 
 ---
 
-## Running Locally & Executing Automated Tests
+## How It Works
 
-### 1. Backend & Pytest Suite
+### Architecture Flow
+
+```mermaid
+flowchart LR
+    Browser[React Frontend<br/>Vite / TypeScript] -->|"/api/*"| API[FastAPI Backend<br/>Vercel Function]
+    API --> Security[Security & RBAC<br/>JWT + Role Check]
+    Security --> DB[(Database<br/>SQLite / PostgreSQL)]
+```
+
+### Authentication & Token Rotation
+
+```mermaid
+sequenceDiagram
+    participant C as Frontend (Client)
+    participant A as Auth Router
+    participant D as Database
+
+    C->>A: POST /api/auth/login {email, password}
+    A->>D: Verify user, check 5-attempt lockout, check password hash
+    A-->>C: 200 OK {access_token (15m), refresh_token (7d)}
+
+    Note over C: Attach "Authorization: Bearer <access_token>" on API calls
+
+    C->>A: POST /api/auth/refresh {refresh_token}
+    A->>D: Verify refresh token & rotate
+    A-->>C: 200 OK {new access_token, new refresh_token}
+
+    C->>A: POST /api/auth/logout
+    A->>D: Store token jti in revoked_tokens blacklist
+    A-->>C: 200 OK (Token invalidated)
+```
+
+---
+
+## Demo Accounts
+
+The database is pre-seeded with accounts representing each system role:
+
+| Name | Email | Role | Permissions |
+|---|---|---|---|
+| **Ammar Rahman** | `ammar@campus.edu` | `user` | Can manage profile and edit/delete own reports |
+| **Sajid Ahmed** | `sajid@campus.edu` | `user` | Can manage profile and edit/delete own reports |
+| **Campus Chief Admin** | `admin@campus.edu` | `admin` | Full control: manage all reports, users, roles, and stats |
+
+*(Demo credentials for grading evaluation are provided in the viva submission form and report Appendix).*
+
+---
+
+## Run Locally
+
+### Requirements
+- [Python 3.10+](https://www.python.org/downloads/)
+- [Node.js 18+](https://nodejs.org/)
+
+### 1. Backend Setup (Terminal 1)
+
 ```bash
 cd backend
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\Activate.ps1       # macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-pytest
 fastapi dev main.py
 ```
+* Backend runs at: `http://localhost:8000`
+* Interactive API docs: `http://localhost:8000/docs`
 
-### 2. Frontend
+### 2. Frontend Setup (Terminal 2)
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+* Frontend runs at: `http://localhost:5173`
+* Vite automatically proxies `/api` calls to the local FastAPI backend.
+
+### 3. Run Automated Tests
+
+```bash
+cd backend
+pytest tests/test_auth_and_rbac.py -v
+```
+
+---
+
+## Environment Variables
+
+| Variable | Required For | Default / Description |
+|---|---|---|
+| `DATABASE_URL` | Production DB | SQLite path locally; PostgreSQL URL (Neon/Supabase) in production |
+| `JWT_SECRET` | Auth Security | Secret key used to sign and verify JWT tokens |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Token Expiry | `15` (15 minutes lifespan) |
+| `REFRESH_TOKEN_EXPIRE_DAYS` | Token Expiry | `7` (7 days lifespan) |
+
+---
+
+## Deploy to Vercel
+
+1. Push the repository to GitHub.
+2. In [Vercel Dashboard](https://vercel.com/new), import the repository.
+3. Keep **Root Directory** as `./`.
+4. Add Environment Variables (`JWT_SECRET`, and optional `DATABASE_URL`).
+5. Click **Deploy**. Vercel builds the React frontend and deploys FastAPI serverless functions automatically using `vercel.json`.
+
+---
+
+## Troubleshooting
+
+- **PowerShell script execution disabled:** Run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+- **FastAPI not found:** Activate the virtual environment (`.venv\Scripts\Activate.ps1`) before running commands.
+- **Account locked out:** Wait 15 minutes or test with another seeded demo account.
+- **CORS or 500 error:** Ensure backend is running at port 8000 when accessing through Vite frontend.
+- **Vercel build error:** Verify that `npm run build` succeeds locally in `frontend/`.
