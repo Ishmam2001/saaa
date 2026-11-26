@@ -13,75 +13,75 @@ To enforce SRS Requirements **`MAIN-03`** (linter-checked coding standard), **`M
 | **3. Bandit** (PyCQA Security Scanner) | Scans Python AST for security vulnerabilities (`CWE-259` hardcoded secrets, SQL injection, weak `random` PRNG, unsafe `eval`/subprocess). | `bandit -r accounts booking consultation notifications queueing reports scheduling config -x "*/tests*,*/test_*,*/migrations/*"` | **`0` issues in `4,783` lines of production code** (`0 High`, `0 Medium`, `0 Low`) |
 | **4. GitHub Pull Requests & Actions CI** | Enforces PR checklist (`.github/pull_request_template.md`), peer review, and automated `ruff check .` + `python manage.py test` runs before/on merge. | `.github/workflows/ci.yml` across 33 PRs | **CI Passing** (Run `#45427123068` & PR `#33` Run `#8`) |
 
-### Terminal & CI Verification Screenshots
-- **Static Analysis CLI Execution (`ruff`, `bandit`, `pylint`):**  
-  `[Upload Screenshot: 7_ruff_bandit_pylint_terminal_output.png]`
-- **GitHub Actions CI Workflow History (Showing Real Failure Catches & Green Fix Runs):**  
-  `[Upload Screenshot: 5_github_actions_ci_passing.png]`
-- **Pull Request #33 Checklist & Automated CI Ruff Fix Commit (`27bd9e1`):**  
-  `[Upload Screenshot: 6_github_pr33_ci_ruff_check.png]`
+### Static Analysis Terminal Output (`ruff check .`, `bandit -r .`, `pylint`)
+
+DROP_7_ruff_bandit_pylint_terminal_output_HERE
 
 ---
 
 ## 9.2 Six Real Findings, Root-Cause Explanations, and Corrective Actions
 
-Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Bandit, and PR reviews on the ClinicQ repository, along with their root causes and the exact fixes or engineering decisions applied:
+Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Bandit, and PR reviews on the ClinicQ repository, each paired with its real screenshot, root cause, and exact commit/PR fix:
 
 ---
 
 ### Finding 1 — Unsorted Imports (`I001`) and Missing Trailing Newline (`W292`) Caught on PR #33
 - **Tool:** **Ruff (`ruff check .`) in GitHub Actions CI** (Workflow Run `#6` on PR `#33`).
 - **Location:** `docs/conf.py` (initial commit `b870817` on branch `docs/sphinx-setup`).
-- **What Was Detected:** When PR #33 (*"Docs: configure Sphinx autodoc and generate API documentation"*) was opened, GitHub Actions failed the `Run Ruff tidy-code checker (MAIN-03)` step within 15 seconds because `import django` was grouped without a blank line after standard-library imports (`os`, `sys`) (`I001`), and `docs/conf.py` lacked a trailing newline (`W292`).
+- **Root Cause:** When PR #33 (*"Docs: configure Sphinx autodoc and generate API documentation"*) was opened, GitHub Actions failed the `Run Ruff tidy-code checker (MAIN-03)` step within 15 seconds because `import django` was grouped without a blank line after standard-library imports (`os`, `sys`) (`I001`), and `docs/conf.py` lacked a trailing newline (`W292`).
 - **Corrective Action Taken:** Fixed immediately in follow-up commit **`27bd9e1`** (*"Docs: auto-fix import sorting and trailing newline in docs/conf.py"*), separating `import django` from `os`/`sys` and adding the trailing newline. Workflow Run `#7` passed both Ruff and Django tests before PR `#33` merged (`910504c`).
+- **Screenshot (PR #33 Checklist & `27bd9e1` CI Fix):**
+
+DROP_6_github_pr33_ci_ruff_check_HERE
 
 ---
 
 ### Finding 2 — Mobile Touch-Target (`44×44 px`) & Horizontal Overflow Regression Caught by CI
-- **Tool:** **GitHub Actions CI (`python manage.py test`)** executing `accounts/test_phone_layout.py` (Workflow Run `#45424805962` / Commit `edcdcc1`).
+- **Tool:** **GitHub Actions CI (`python manage.py test`)** executing `accounts/test_phone_layout.py` (Workflow Run `#45424805962`).
 - **Location:** `templates/base.html`.
-- **What Was Detected:** After a shared layout polish merge, the CSS rules enforcing `min-height: 44px; min-width: 44px;` on buttons (`COMP-02`) and `overflow-x: auto;` on wide tables (`SYS-02`) were accidentally dropped from `templates/base.html`, causing `PhoneFriendlyLayoutTests.test_base_template_has_viewport_and_44px_button_targets` to fail in CI.
+- **Root Cause:** After a shared layout polish merge, the CSS rules enforcing `min-height: 44px; min-width: 44px;` on buttons (`COMP-02`) and `overflow-x: auto;` on wide tables (`SYS-02`) were accidentally dropped from `templates/base.html`, causing `PhoneFriendlyLayoutTests.test_base_template_has_viewport_and_44px_button_targets` to fail in CI.
 - **Corrective Action Taken:** Fixed in commit **`964db4d`** (*"UI: restore mobile touch-target and overflow-x rules in base.html"*), restoring explicit `44px` minimum touch targets on `button, .btn, a.btn, input[type="submit"]` and `overflow-x: auto` on `.table-responsive, table`. Workflow Run `#45427123068` turned green immediately.
+- **Screenshot (Commit `964db4d` Restoring `44px` Touch Targets & `overflow-x`):**
+
+DROP_8_github_commit_964db4d_base_html_fix_HERE
 
 ---
 
-### Finding 3 — Unused Imports (`F401`), Line-Length (`E501`), and Docstring Gaps Across Merged Apps
-- **Tool:** **Ruff (`ruff check .`)** when activating `.github/workflows/ci.yml` on `main`.
+### Finding 3 — Unused Imports (`F401`), Line-Length (`E501`), and CI Workflow YAML Fixes
+- **Tool:** **Ruff (`ruff check .`)** & **GitHub Actions CI** when activating `.github/workflows/ci.yml` on `main`.
 - **Location:** Multiple app modules and test files across `accounts/`, `booking/`, `queueing/`, and `scheduling/`.
-- **What Was Detected:** Initial full-repo Ruff runs flagged unused test imports (`F401`), unsorted import blocks (`I001`), lines exceeding 100 characters (`E501`), and missing docstrings (`D102`/`D103`).
-- **Corrective Action Taken:** Resolved across the repository in commit **`CI: fix workflow YAML indentation and resolve all Ruff lint checks`**, bringing `ruff check .` to **`All checks passed!`** with zero warnings.
+- **Root Cause:** Initial full-repo Ruff runs flagged unused test imports (`F401`), unsorted import blocks (`I001`), lines exceeding 100 characters (`E501`), and missing docstrings (`D102`/`D103`).
+- **Corrective Action Taken:** Resolved across the repository in commit **`CI: fix workflow YAML indentation and resolve all Ruff lint checks`** (`PR #22` / `main` CI activation), bringing `ruff check .` to **`All checks passed!`** with zero warnings.
+- **Screenshot (GitHub Actions Workflow History Showing Red Catches & Green Passes):**
+
+DROP_5_github_actions_ci_passing_HERE
 
 ---
 
-### Finding 4 — Unused Function Parameter (`W0613`) and Function-Level Import (`C0415`)
-- **Tool:** **Pylint (`pylint --load-plugins=pylint_django`)**.
-- **Locations:**
-  1. `notifications/services.py:67:22` — `W0613: Unused argument 'appointment' (unused-argument)` in `_appointment_link(appointment)`.
-  2. `accounts/views.py:155:8` — `C0415: Import outside toplevel (datetime.date) (import-outside-toplevel)` inside `patient_register_verify()`.
-- **Root Cause & Action:**
-  - In `notifications/services.py`, `_appointment_link(appointment)` accepts `appointment` to match the helper signature of `_doctor_label(appointment)` and `_appointment_when(appointment)`, while linking to the unified `/booking/appointments/mine/` dashboard (`reverse('booking:my_appointments')`). Keeping the parameter preserves a uniform helper interface if per-appointment detail URLs are used later.
-  - In `accounts/views.py:155`, `from datetime import date` was placed inside the `POST` branch of `patient_register_verify()` rather than at the top of `accounts/views.py`; Pylint flagged it for top-level module placement per PEP 8.
+### Finding 4 — Self-Guardianship Loophole (`guardian=self`) Caught in `accounts/models.py`
+- **Tool:** **GitHub Pull Request Review (`PR #4`)** + Django Model Validation.
+- **Location:** `accounts/models.py` (`Patient` model).
+- **Root Cause:** During early `AUTH-00` model review, a `Patient` record could reference itself in the `guardian` foreign key (`guardian = self`), which would create a circular reference in dependent lookups (`AUTH-04`).
+- **Corrective Action Taken:** Fixed in **PR #4** (*"AUTH-00: block self-guardianship and limit guardian choices"* by `@munim456`), adding a PostgreSQL `CheckConstraint(check=~Q(id=F("guardian")), name="patient_cannot_be_own_guardian")` and restricting `limit_choices_to={"guardian__isnull": True}`.
+- **Screenshot (GitHub PR #4 — Self-Guardianship Constraint Fix):**
+
+DROP_9_github_pr4_self_guardianship_fix_HERE
 
 ---
 
-### Finding 5 — Broad Exception Catching (`W0718`) Audited Against SRS Reliability Rule `REL-04`
-- **Tool:** **Pylint (`W0718: broad-exception-caught`)**.
-- **Locations:** `notifications/services.py` (lines `104`, `115`, `145`, `163`, `193`) and `scheduling/leave.py:117`.
-- **Root Cause & Engineering Resolution:** Pylint flagged `except Exception:` around SMS and email delivery calls:
-  ```python
-  # notifications/services.py (lines 101–106)
-  try:
-      if send_sms(mobile, message):
-          return Notification.Channel.SMS, Notification.Status.SENT, attempts, mobile
-  except Exception:
-      logger.debug("SMS confirmation failed on attempt %s", attempts, exc_info=True)
-  ```
-  During review, we verified that this is **required by SRS `REL-04`** (*"If the SMS or email service fails, the main action (for example booking) shall still succeed. The system shall retry sending up to 3 times and show the message in the user's in-app inbox"*). Catching unexpected gateway exceptions prevents a third-party SMS/SMTP outage from rolling back a patient's confirmed appointment or doctor's leave, while `logger.debug(..., exc_info=True)` and `logger.exception(...)` preserve full stack traces in server logs instead of failing silently.
+### Finding 5 — Cancelled Appointments Blocking Slot Rebooking Caught in `booking/models.py`
+- **Tool:** **GitHub Pull Request Review (`PR #6`)** + `booking/tests.py`.
+- **Location:** `booking/models.py` (`Appointment` model).
+- **Root Cause:** An unconditional unique constraint on `(doctor, slot_start)` would satisfy `REL-02` (no double booking) but break `BR-01` by permanently locking a time slot even after a patient cancelled or was marked `No-Show`.
+- **Corrective Action Taken:** Fixed in **PR #6** (*"BKG-00: add Appointment model with no-double-booking constraint"* by `@Arafat77-alt`), scoping the database constraint with `condition=Q(status__in=["booked", "checked_in", "in_consultation"])` (`uniq_active_slot_per_doctor`).
+- **Screenshot (GitHub PR #6 — Conditional Slot Uniqueness Fix):**
+
+DROP_10_github_pr6_booking_constraint_fix_HERE
 
 ---
 
-### Finding 6 — Security Scan (`Bandit CWE-259`) & Database Constraint Bugs Fixed in PR Reviews
-- **Tools:** **Bandit (`bandit -r .`)** + **GitHub Pull Request Reviews (`PR #4`, `PR #6`)**.
-- **What Was Detected:**
-  1. **Bandit Scan:** Across **`4,783` lines of production application code**, Bandit reported **`0` security issues** (`0 High`, `0 Medium`, `0 Low`) — confirming that OTP generation uses Python's cryptographic `secrets` module rather than `random`, `SECRET_KEY` is loaded via `django-environ` rather than hardcoded in `config/settings.py`, and all queries use Django's parameterized ORM (`SEC-07`). When scanning all **`9,194` lines including tests**, Bandit flagged `73` Low-severity `B105`/`B106` (`hardcoded_password_funcarg`) notices, **100% of which were synthetic test passwords** (such as `"Strong-pass-123"` and `"Temp-pass-4821"` in `accounts/tests.py` and `scheduling/tests.py`, required by `PRIV-04` synthetic test data rules).
-  2. **PR Review Logic Catches (`PR #4` & `PR #6`):** Peer review caught that a `Patient` could reference `guardian=self` (fixed in **PR #4** via `CheckConstraint(check=~Q(id=F("guardian")), name="patient_cannot_be_own_guardian")`) and that cancelled appointments would block rebooking the same slot unless the unique constraint filtered only active statuses (fixed in **PR #6** via `UniqueConstraint(..., condition=Q(status__in=ACTIVE_STATUSES))`).
+### Finding 6 — Pylint (`W0718`, `C0415`, `W0613`) & Bandit (`CWE-259`) Security Audit
+- **Tools:** **Pylint (`pylint --load-plugins=pylint_django`)** & **Bandit (`bandit -r .`)**.
+- **Root Cause & Engineering Resolution:**
+  1. **Pylint (`9.80/10`):** Flagged `W0718` (`broad-exception-caught`) in `notifications/services.py` (lines `104`, `115`, `145`, `163`, `193`) and `scheduling/leave.py:117`, plus `C0415` (`import-outside-toplevel` for `datetime.date`) in `accounts/views.py:155` and `W0613` (`unused-argument` on `_appointment_link(appointment)`) in `notifications/services.py:67`. Review verified that catching gateway exceptions in `notifications/services.py` is **required by SRS `REL-04`** so an SMS/email failure never aborts a confirmed booking or doctor leave, while `logger.debug(..., exc_info=True)` preserves stack traces.
+  2. **Bandit Security Scan:** Across **`4,783` lines of production application code**, Bandit reported **`0` security issues** (`0 High`, `0 Medium`, `0 Low`). Across all `9,194` lines including tests, Bandit flagged `73` Low-severity `B105`/`B106` notices—100% synthetic test passwords (e.g., `"Strong-pass-123"` in `accounts/tests.py`, required by `PRIV-04`).
