@@ -127,7 +127,7 @@ def complete_consultation(entry, now=None):
 
 1. **Sphinx Documentation Home Page (`docs/_build/html/index.html`):**  
    *Shows the main table of contents, search bar, and module index generated with `sphinx_rtd_theme`.*  
-   `[Upload Screenshot: 1_sphinx_home_index.png]`
+   `[<img width="1280" height="820" alt="1_sphinx_home_index" src="https://github.com/user-attachments/assets/3303da43-6145-470a-b914-19224fb25226" />]`
 
 2. **Application Package & Module Index (`docs/_build/html/api/modules.html`):**  
    *Displays all 7 ClinicQ Django packages (`accounts`, `booking`, `consultation`, `notifications`, `queueing`, `reports`, `scheduling`) and their submodules.*  
