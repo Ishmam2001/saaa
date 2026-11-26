@@ -15,7 +15,7 @@ To enforce SRS Requirements **`MAIN-03`** (linter-checked coding standard), **`M
 
 ### Static Analysis Terminal Output (`ruff check .`, `bandit -r .`, `pylint`)
 
-<img width="1200" alt="Ruff Bandit and Pylint Terminal Output" src="https://raw.githubusercontent.com/Arafat77-alt/ClinicQ/main/docs/wiki_screenshots/7_ruff_bandit_pylint_terminal_output.png" />
+<img width="1200" height="560" alt="7_ruff_bandit_pylint_terminal_output" src="https://github.com/user-attachments/assets/a8b55fce-64b9-4f31-b0e1-823d194426dd" />
 
 ---
 
@@ -32,7 +32,7 @@ Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Ba
 - **Corrective Action Taken:** Fixed immediately in follow-up commit **`27bd9e1`** (*"Docs: auto-fix import sorting and trailing newline in docs/conf.py"*), separating `import django` from `os`/`sys` and adding the trailing newline. Workflow Run `#7` passed both Ruff and Django tests before PR `#33` merged (`910504c`).
 - **Screenshot (PR #33 Checklist & `27bd9e1` CI Fix):**
 
-<img width="1280" alt="GitHub PR 33 Ruff CI Check and Fix" src="https://raw.githubusercontent.com/Arafat77-alt/ClinicQ/main/docs/wiki_screenshots/6_github_pr33_ci_ruff_check.png" />
+<img width="1366" height="900" alt="6_github_pr33_ci_ruff_check" src="https://github.com/user-attachments/assets/322a3e0d-f285-41fb-b3be-cb5cb20025a5" />
 
 ---
 
@@ -43,7 +43,7 @@ Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Ba
 - **Corrective Action Taken:** Fixed in commit **`964db4d`** (*"UI: restore mobile touch-target and overflow-x rules in base.html"*), restoring explicit `44px` minimum touch targets on `button, .btn, a.btn, input[type="submit"]` and `overflow-x: auto` on `.table-responsive, table`. Workflow Run `#45427123068` turned green immediately.
 - **Screenshot (Commit `964db4d` Restoring `44px` Touch Targets & `overflow-x`):**
 
-<img width="1280" alt="Commit 964db4d Restoring Mobile Touch Targets in base.html" src="https://raw.githubusercontent.com/Arafat77-alt/ClinicQ/main/docs/wiki_screenshots/8_github_commit_964db4d_base_html_fix.png" />
+<img width="1366" height="900" alt="8_github_commit_964db4d_base_html_fix" src="https://github.com/user-attachments/assets/b500e463-949a-4146-841d-b79e1e1d6108" />
 
 ---
 
@@ -54,7 +54,7 @@ Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Ba
 - **Corrective Action Taken:** Resolved across the repository in commit **`CI: fix workflow YAML indentation and resolve all Ruff lint checks`** (`PR #22` / `main` CI activation), bringing `ruff check .` to **`All checks passed!`** with zero warnings.
 - **Screenshot (GitHub Actions Workflow History Showing Red Catches & Green Passes):**
 
-<img width="1280" alt="GitHub Actions CI Workflow History" src="https://raw.githubusercontent.com/Arafat77-alt/ClinicQ/main/docs/wiki_screenshots/5_github_actions_ci_passing.png" />
+<img width="1366" height="850" alt="5_github_actions_ci_passing" src="https://github.com/user-attachments/assets/33450967-c227-4883-8c43-893fa2c060d3" />
 
 ---
 
@@ -65,7 +65,7 @@ Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Ba
 - **Corrective Action Taken:** Fixed in **PR #4** (*"AUTH-00: block self-guardianship and limit guardian choices"* by `@munim456`), adding a PostgreSQL `CheckConstraint(check=~Q(id=F("guardian")), name="patient_cannot_be_own_guardian")` and restricting `limit_choices_to={"guardian__isnull": True}`.
 - **Screenshot (GitHub PR #4 — Self-Guardianship Constraint Fix):**
 
-<img width="1280" alt="GitHub PR 4 Self Guardianship Fix" src="https://raw.githubusercontent.com/Arafat77-alt/ClinicQ/main/docs/wiki_screenshots/9_github_pr4_self_guardianship_fix.png" />
+<img width="1366" height="900" alt="9_github_pr4_self_guardianship_fix" src="https://github.com/user-attachments/assets/aee4970b-2f9f-4958-a480-edc90438ae47" />
 
 ---
 
@@ -76,7 +76,7 @@ Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Ba
 - **Corrective Action Taken:** Fixed in **PR #6** (*"BKG-00: add Appointment model with no-double-booking constraint"* by `@Arafat77-alt`), scoping the database constraint with `condition=Q(status__in=["booked", "checked_in", "in_consultation"])` (`uniq_active_slot_per_doctor`).
 - **Screenshot (GitHub PR #6 — Conditional Slot Uniqueness Fix):**
 
-<img width="1280" alt="GitHub PR 6 Slot Uniqueness Fix" src="https://raw.githubusercontent.com/Arafat77-alt/ClinicQ/main/docs/wiki_screenshots/10_github_pr6_booking_constraint_fix.png" />
+<img width="1366" height="900" alt="10_github_pr6_booking_constraint_fix" src="https://github.com/user-attachments/assets/2bb117d4-6417-4a82-8c77-a5d59689672e" />
 
 ---
 
