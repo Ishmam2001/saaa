@@ -15,7 +15,7 @@ To enforce SRS Requirements **`MAIN-03`** (linter-checked coding standard), **`M
 
 ### Static Analysis Terminal Output (`ruff check .`, `bandit -r .`, `pylint`)
 
-<img width="1200" height="560" alt="7_ruff_bandit_pylint_terminal_output" src="https://github.com/user-attachments/assets/a8b55fce-64b9-4f31-b0e1-823d194426dd" />
+![Real_Terminal_Ruff_Bandit_Pylint](https://github.com/user-attachments/assets/b1c47fbf-fb2b-4194-96bf-27ffdcf9da7d)
 
 ---
 
@@ -32,7 +32,7 @@ Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Ba
 - **Corrective Action Taken:** Fixed immediately in follow-up commit **`27bd9e1`** (*"Docs: auto-fix import sorting and trailing newline in docs/conf.py"*), separating `import django` from `os`/`sys` and adding the trailing newline. Workflow Run `#7` passed both Ruff and Django tests before PR `#33` merged (`910504c`).
 - **Screenshot (PR #33 Checklist & `27bd9e1` CI Fix):**
 
-<img width="2800" height="1700" alt="Page9_Finding1_PR33" src="https://github.com/user-attachments/assets/1e0c4d11-8097-4639-bde7-b6588a2a2e95" />
+![Finding_1_PR33](https://github.com/user-attachments/assets/b208cdbd-7ac9-4126-8088-687017b733da)
 
 ---
 
@@ -43,7 +43,7 @@ Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Ba
 - **Corrective Action Taken:** Fixed in commit **`964db4d`** (*"UI: restore mobile touch-target and overflow-x rules in base.html"*), restoring explicit `44px` minimum touch targets on `button, .btn, a.btn, input[type="submit"]` and `overflow-x: auto` on `.table-responsive, table`. Workflow Run `#45427123068` turned green immediately.
 - **Screenshot (Commit `964db4d` Restoring `44px` Touch Targets & `overflow-x`):**
 
-<img width="2800" height="1700" alt="Page9_Finding2_Commit_964db4d" src="https://github.com/user-attachments/assets/2930db24-7e00-4a70-8af4-9560d40343d0" />
+![Finding_2_Commit_964db4d](https://github.com/user-attachments/assets/bfa04cff-0b3f-4af1-b8c3-36835b4dc7f3)
 
 ---
 
@@ -54,7 +54,7 @@ Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Ba
 - **Corrective Action Taken:** Resolved across the repository in commit **`CI: fix workflow YAML indentation and resolve all Ruff lint checks`** (`PR #22` / `main` CI activation), bringing `ruff check .` to **`All checks passed!`** with zero warnings across all subsequent workflow runs.
 - **Screenshot (GitHub Actions CI Workflow Runs Passing):**
 
-<img width="2800" height="1700" alt="Page9_Finding3_Actions_CI" src="https://github.com/user-attachments/assets/1675fe50-a22d-4a0a-9729-7b432e313f25" />
+![Finding_3_Actions_CI](https://github.com/user-attachments/assets/8d2529e7-7e4a-489f-9824-78940e7732b2)
 
 ---
 
@@ -65,7 +65,7 @@ Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Ba
 - **Corrective Action Taken:** Fixed in **PR #4** (*"AUTH-00: block self-guardianship and limit guardian choices"* by `@munim456`), adding a PostgreSQL `CheckConstraint(check=~Q(id=F("guardian")), name="patient_cannot_be_own_guardian")` and restricting `limit_choices_to={"guardian__isnull": True}`.
 - **Screenshot (GitHub PR #4 — Self-Guardianship Constraint Fix):**
 
-<img width="2800" height="1700" alt="Page9_Finding4_PR4" src="https://github.com/user-attachments/assets/ebd633fb-e6b2-4f28-9f45-24f8f63c9a30" />
+![Finding_4_PR4](https://github.com/user-attachments/assets/26ac71f1-c4d8-4834-b03a-1aa80385cde7)
 
 ---
 
@@ -76,7 +76,7 @@ Below are **six genuine issues** detected by Ruff, GitHub Actions CI, Pylint, Ba
 - **Corrective Action Taken:** Fixed in **PR #6** (*"BKG-00: add Appointment model with no-double-booking constraint"* by `@Arafat77-alt`), scoping the database constraint with `condition=Q(status__in=["booked", "checked_in", "in_consultation"])` (`uniq_active_slot_per_doctor`).
 - **Screenshot (GitHub PR #6 — Conditional Slot Uniqueness Fix):**
 
-<img width="2800" height="1700" alt="Page9_Finding5_PR6" src="https://github.com/user-attachments/assets/628ebc8e-4976-4192-8969-c1258fec2823" />
+![Finding_5_PR6](https://github.com/user-attachments/assets/b0afaa3f-5cb8-40ec-a2e7-44acdbbfd2e2)
 
 ---
 
